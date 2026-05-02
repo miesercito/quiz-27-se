@@ -3,43 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulatore 27 SE</title>
+    <title>Simulatore 27° SE</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 15px; display: flex; justify-content: center; }
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 15px; display: flex; justify-content: center; }
         .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
         .timer-box { background: #333; color: #fb1; text-align: center; padding: 10px; border-radius: 8px; font-size: 24px; font-family: monospace; margin-bottom: 20px; }
-        .question { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #1c1e21; }
-        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; background: #fff; font-size: 16px; text-align: left; cursor: pointer; }
+        .question { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #1c1e21; min-height: 50px; }
+        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; background: #fff; font-size: 16px; text-align: left; cursor: pointer; transition: 0.2s; }
         .btn:active { background: #e7f3ff; border-color: #1877f2; }
         #result-page { display: none; text-align: center; }
+        .progress-bar { font-size: 13px; color: #666; margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="card" id="quiz-page">
     <div class="timer-box" id="t">50:00</div>
-    <div id="prog" style="font-size: 13px; color: #666; margin-bottom: 10px;">Domanda 1 di 80</div>
-    <div class="question" id="q">Caricamento domande...</div>
+    <div class="progress-bar" id="prog">Domanda 1 di 80</div>
+    <div class="question" id="q">Caricamento...</div>
     <div id="options"></div>
 </div>
 
 <div class="card" id="result-page">
-    <h2>Risultato Finale</h2>
+    <h2>Test Completato</h2>
+    <p>Il tuo punteggio è:</p>
     <h1 id="final-score" style="font-size: 48px; color: #1877f2;">0/80</h1>
-    <button onclick="location.reload()" class="btn" style="text-align:center; background:#1877f2; color:white;">Riprova</button>
+    <button onclick="location.reload()" class="btn" style="text-align:center; background:#1877f2; color:white; font-weight:bold;">Riprova il Test</button>
 </div>
 
 <script>
+    // QUI AGGIUNGIAMO LE DOMANDE (Puoi aggiungerne quante ne vuoi seguendo lo schema)
     const questions = [
-        {q: "Il Sergente � un Pubblico Ufficiale?", o: ["Sempre", "Mai", "Solo in servizio"], c: 2},
-        {q: "La sanzione di corpo pi� grave �:", o: ["Consegna semplice", "Consegna di rigore", "Rimprovero"], c: 1},
-        {q: "Frequenza compressioni BLS (manovre RCP):", o: ["60/min", "100-120/min", "150/min"], c: 1},
-        {q: "Il Codice Penale Militare di Pace si applica:", o: ["Solo ai civili", "Ai militari in servizio", "Solo in guerra"], c: 1},
-        {q: "Chi � il detentore del rifiuto?", o: ["Solo lo Stato", "Il produttore o chi lo possiede", "Chi lo trasporta"], c: 1}
+        {q: "Il Sergente è un Pubblico Ufficiale?", o: ["Sempre", "Mai", "Solo durante il servizio"], c: 2},
+        {q: "La sanzione di corpo più grave è:", o: ["Consegna semplice", "Consegna di rigore", "Rimprovero"], c: 1},
+        {q: "Le manovre BLS prevedono una frequenza di compressioni di:", o: ["60-80 al minuto", "100-120 al minuto", "Oltre 150 al minuto"], c: 1},
+        {q: "Il Codice Penale Militare di Pace (CPMP) è composto da:", o: ["2 Libri", "3 Libri", "5 Libri"], c: 1},
+        {q: "Chi è considerato 'Detentore' di un rifiuto?", o: ["Solo l'azienda di smaltimento", "Il produttore o chi lo possiede", "Il Sindaco"], c: 1},
+        {q: "L'elogio è una ricompensa che va trascritta:", o: ["Sui documenti matricolari", "Solo su un registro interno", "Non va mai trascritta"], c: 0},
+        {q: "In caso di arresto cardiaco, il defibrillatore (DAE):", o: ["Sostituisce sempre il massaggio", "Analizza il ritmo e guida l'operatore", "Si usa solo sui bambini"], c: 1},
+        {q: "Il reato militare è 'esclusivo' quando:", o: ["È previsto anche dalla legge comune", "È previsto solo dalla legge penale militare", "Riguarda solo i civili"], c: 1},
+        {q: "Il CER (Catalogo Europeo dei Rifiuti) serve a:", o: ["Identificare i rifiuti tramite un codice", "Stabilire il prezzo del rifiuto", "Pulire le caserme"], c: 0},
+        {q: "La consegna di rigore può durare al massimo:", o: ["7 giorni", "15 giorni", "30 giorni"], c: 1},
+        {q: "La G.U.S. (Grande Uniforme Storica) si indossa:", o: ["Per i servizi armati", "In occasioni solenni e cerimonie", "Durante l'addestramento"], c: 1}
     ];
 
-    // Crea database di 80 domande (ripetendo le basi per ora)
-    let db = []; while(db.length < 80) db.push(...questions); 
+    // Questa funzione "mescola" e riempie fino a 80 domande per simulare l'esame
+    let db = [];
+    while(db.length < 80) {
+        let shuffle = [...questions].sort(() => 0.5 - Math.random());
+        db.push(...shuffle);
+    }
     db = db.slice(0, 80);
 
     let cur = 0; let score = 0; let sec = 3000;
@@ -53,7 +66,11 @@
             const b = document.createElement("button");
             b.className = "btn";
             b.innerText = opt;
-            b.onclick = () => { if(i == db[cur].c) score++; cur++; if(cur < 80) show(); else end(); };
+            b.onclick = () => { 
+                if(i == db[cur].c) score++; 
+                cur++; 
+                if(cur < 80) show(); else end(); 
+            };
             box.appendChild(b);
         });
     }
