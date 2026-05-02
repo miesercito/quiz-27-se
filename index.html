@@ -3,132 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulatore 27� Sergenti - 80 Domande</title>
+    <title>Simulatore 27� Sergenti</title>
     <style>
-        :root { --primary: #004a99; --accent: #ffd700; --bg: #e9ecef; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
-        .container { max-width: 800px; width: 100%; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; }
-        
-        /* Header e Timer */
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px; }
-        .timer-box { background: #333; color: var(--accent); padding: 10px 20px; border-radius: 8px; font-family: monospace; font-size: 22px; font-weight: bold; }
-        
-        /* Quiz */
-        .progress { font-size: 14px; color: #666; margin-bottom: 10px; }
-        .question { font-size: 20px; font-weight: 600; color: #333; margin-bottom: 20px; line-height: 1.4; }
-        .option { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #eee; border-radius: 10px; cursor: pointer; text-align: left; background: #fff; font-size: 16px; transition: all 0.2s; }
-        .option:hover { border-color: var(--primary); background: #f0f7ff; }
-        .option.selected { background: var(--primary); color: white; border-color: var(--primary); }
-        
-        /* Risultati */
-        #result-screen { display: none; text-align: center; }
-        .score-circle { width: 150px; height: 150px; border-radius: 50%; border: 8px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold; margin: 20px auto; }
-        .btn-restart { background: var(--primary); color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; margin-top: 20px; }
+        body { font-family: Arial, sans-serif; background: #f4f4f9; display: flex; justify-content: center; padding: 20px; }
+        .quiz-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 100%; max-width: 600px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #004a99; padding-bottom: 10px; margin-bottom: 20px; }
+        #timer { font-size: 24px; font-weight: bold; color: #d9534f; }
+        .question { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
+        .option { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; text-align: left; font-size: 16px; background: #fff; }
+        .option:hover { background: #f0f7ff; border-color: #004a99; }
+        #result { text-align: center; display: none; }
+        .btn-reset { background: #004a99; color: white; padding: 15px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 18px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="quiz-screen">
+<div class="quiz-container">
+    <div id="quiz-box">
         <div class="header">
-            <h2 style="margin:0; color: var(--primary);">27� SE HUB</h2>
-            <div class="timer-box" id="timer">50:00</div>
+            <h2 style="color:#004a99; margin:0;">27� SE Quiz</h2>
+            <div id="timer">50:00</div>
         </div>
-        
-        <div class="progress">Domanda <span id="currentNum">1</span> di 80</div>
-        <div class="question" id="questionText">Caricamento in corso...</div>
-        <div id="optionsContainer"></div>
+        <div id="progress" style="margin-bottom:10px; color:#666;">Domanda 1 di 80</div>
+        <div class="question" id="qText">Caricamento...</div>
+        <div id="options"></div>
     </div>
 
-    <div id="result-screen">
-        <h2>Simulazione Terminata</h2>
-        <div class="score-circle" id="finalScore">0/80</div>
-        <p id="feedbackText"></p>
-        <button class="btn-restart" onclick="location.reload()">Riprova Test</button>
+    <div id="result">
+        <h2>Test Completato!</h2>
+        <h1 id="scoreDisplay" style="font-size: 50px; color: #004a99;">0/80</h1>
+        <button class="btn-reset" onclick="location.reload()">Ricomincia</button>
     </div>
 </div>
 
 <script>
-    // Database espanso basato sui moduli del file 27 Serg
-    // Nota: Qui sono inseriti i pattern principali. Per arrivare a 80, il sistema pesca 
-    // e mescola le varianti dagli argomenti del PDF (Normativa, Logistica, Sanit�, Comunicazioni).
-    
-    const rawQuestions = [
-        { q: "Qual � la sanzione disciplinare di corpo pi� grave?", o: ["Consegna di rigore", "Rimprovero scritto", "Consegna semplice"], c: 0 },
-        { q: "Il Sergente, nell'esercizio delle sue funzioni, � considerato:", o: ["Agente di Pubblica Sicurezza", "Pubblico Ufficiale", "Incaricato di Pubblico Servizio"], c: 1 },
-        { q: "Secondo il protocollo BLS, la frequenza delle compressioni toraciche �:", o: ["60-80 al minuto", "80-100 al minuto", "100-120 al minuto"], c: 2 },
-        { q: "La gestione dei materiali di reparto ricade sotto la responsabilit� del:", o: ["Sottufficiale di giornata", "Sergente addetto alla logistica", "Comandante di Plotone"], c: 1 },
-        { q: "In fonia, la parola 'PASSO' significa:", o: ["Ho terminato la trasmissione e attendo risposta", "Ho terminato la trasmissione e non attendo risposta", "Ripetere l'ultimo messaggio"], c: 0 },
-        { q: "La redazione del verbale di cessione � obbligatoria per:", o: ["Solo armi e munizioni", "Qualsiasi materiale inventariato", "Solo veicoli"], c: 1 },
-        { q: "L'elogio � un atto che va trascritto:", o: ["Sui documenti matricolari", "Solo sul giornale di bordo", "Non va mai trascritto"], c: 0 },
-        { q: "In caso di ferita lacerocontusa con emorragia arteriosa, la priorit� �:", o: ["Disinfezione", "Compressione diretta o laccio emostatico", "Somministrazione di liquidi"], c: 1 },
-        { q: "Il rapporto disciplinare deve essere redatto entro:", o: ["24 ore dal fatto", "I termini previsti dal regolamento", "10 giorni lavorativi"], c: 1 }
-        // Il sistema genera automaticamente le restanti domande per arrivare a 80 
-        // basandosi sulla rotazione degli argomenti del file 27.
+    // Database sintetizzato dal file 27 Serg
+    const questions = [
+        {q: "Secondo il Codice Penale Militare, il reato � esclusivamente militare quando:", o: ["� previsto anche dalla legge comune", "Non � previsto dalla legge penale comune", "Riguarda solo i civili"], c: 1},
+        {q: "La Legge Penale Militare � considerata 'Speciale' perch�:", o: ["Tutela diritti privati", "Salvaguarda l'efficienza delle FF.AA.", "Si applica solo in tempo di guerra"], c: 1},
+        {q: "Il Codice Penale Militare di Pace � composto da:", o: ["2 Libri", "3 Libri", "4 Libri"], c: 1},
+        {q: "In caso di emorragia esterna grave, la prima azione da compiere �:", o: ["Disinfettare la ferita", "Compressione diretta sulla ferita", "Somministrare acqua"], c: 1},
+        {q: "La definizione di 'Rifiuto' � contenuta nel:", o: ["D.L. 152/2006", "Codice Penale", "Regolamento di Disciplina"], c: 0},
+        {q: "Chi � il 'Detentore' del rifiuto?", o: ["Chi lo smaltisce", "Il produttore o chi ne � in possesso", "Lo Stato"], c: 1},
+        {q: "La sigla CER nell'ambito dei rifiuti significa:", o: ["Codice Emergenza Rifiuti", "Catalogo Europeo dei Rifiuti", "Centro Estrazione Risorse"], c: 1},
+        {q: "L'elogio deve essere trascritto:", o: ["Solo se richiesto dal militare", "Sui documenti matricolari", "Mai"], c: 1}
     ];
 
-    // Generatore automatico per arrivare a 80 domande (mockup per riempire il database)
-    let fullDatabase = [...rawQuestions];
-    while(fullDatabase.length < 80) {
-        let base = rawQuestions[Math.floor(Math.random() * rawQuestions.length)];
-        fullDatabase.push({...base, q: "[SIMULAZIONE] " + base.q});
+    // Genera 80 domande per il simulatore
+    let fullDb = [];
+    while(fullDb.length < 80) {
+        fullDb.push(...questions.map(item => ({...item})));
     }
+    fullDb = fullDb.slice(0, 80);
 
-    let currentIdx = 0;
+    let current = 0;
     let score = 0;
-    let timeLeft = 50 * 60; // 50 minuti in secondi
+    let seconds = 50 * 60;
 
     function startTimer() {
-        const timerEl = document.getElementById('timer');
+        const tDiv = document.getElementById("timer");
         const interval = setInterval(() => {
-            let mins = Math.floor(timeLeft / 60);
-            let secs = timeLeft % 60;
-            timerEl.innerText = ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')};
-            
-            if (timeLeft <= 0) {
-                clearInterval(interval);
-                finishQuiz();
-            }
-            timeLeft--;
+            seconds--;
+            let m = Math.floor(seconds / 60);
+            let s = seconds % 60;
+            tDiv.innerText = ${m}:${s < 10 ? '0' : ''}${s};
+            if (seconds <= 0) { clearInterval(interval); finish(); }
         }, 1000);
     }
 
-    function loadQuestion() {
-        const q = fullDatabase[currentIdx];
-        document.getElementById("currentNum").innerText = currentIdx + 1;
-        document.getElementById("questionText").innerText = q.q;
-        const container = document.getElementById("optionsContainer");
-        container.innerHTML = "";
-        
+    function displayQ() {
+        const q = fullDb[current];
+        document.getElementById("progress").innerText = Domanda ${current + 1} di 80;
+        document.getElementById("qText").innerText = q.q;
+        const optBox = document.getElementById("options");
+        optBox.innerHTML = "";
         q.o.forEach((opt, i) => {
             const btn = document.createElement("button");
             btn.className = "option";
             btn.innerText = opt;
-            btn.onclick = () => selectAnswer(i);
-            container.appendChild(btn);
+            btn.onclick = () => {
+                if(i === q.c) score++;
+                current++;
+                if(current < 80) displayQ(); else finish();
+            };
+            optBox.appendChild(btn);
         });
     }
 
-    function selectAnswer(i) {
-        if (i === fullDatabase[currentIdx].c) score++;
-        currentIdx++;
-        if (currentIdx < 80) {
-            loadQuestion();
-        } else {
-            finishQuiz();
-        }
+    function finish() {
+        document.getElementById("quiz-box").style.display = "none";
+        document.getElementById("result").style.display = "block";
+        document.getElementById("scoreDisplay").innerText = ${score}/80;
     }
 
-    function finishQuiz() {
-        document.getElementById("quiz-screen").style.display = "none";
-        document.getElementById("result-screen").style.display = "block";
-        document.getElementById("finalScore").innerText = ${score}/80;
-        const feedback = score >= 60 ? "Ottimo! Preparazione eccellente." : "Devi ripassare alcuni moduli del file 27.";
-        document.getElementById("feedbackText").innerText = feedback;
-    }
-
+    // Avvio immediato
     startTimer();
-    loadQuestion();
+    displayQ();
 </script>
 
 </body>
