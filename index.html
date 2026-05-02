@@ -3,102 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulatore 27� Sergenti</title>
+    <title>Simulatore 27 SE</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f9; display: flex; justify-content: center; padding: 20px; }
-        .quiz-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 100%; max-width: 600px; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #004a99; padding-bottom: 10px; margin-bottom: 20px; }
-        #timer { font-size: 24px; font-weight: bold; color: #d9534f; }
-        .question { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
-        .option { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; text-align: left; font-size: 16px; background: #fff; }
-        .option:hover { background: #f0f7ff; border-color: #004a99; }
-        #result { text-align: center; display: none; }
-        .btn-reset { background: #004a99; color: white; padding: 15px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 18px; }
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        .timer-box { background: #333; color: #fb1; text-align: center; padding: 10px; border-radius: 8px; font-size: 24px; font-family: monospace; margin-bottom: 20px; }
+        .question { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #1c1e21; }
+        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; background: #fff; font-size: 16px; text-align: left; cursor: pointer; }
+        .btn:active { background: #e7f3ff; border-color: #1877f2; }
+        #result-page { display: none; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="quiz-container">
-    <div id="quiz-box">
-        <div class="header">
-            <h2 style="color:#004a99; margin:0;">27� SE Quiz</h2>
-            <div id="timer">50:00</div>
-        </div>
-        <div id="progress" style="margin-bottom:10px; color:#666;">Domanda 1 di 80</div>
-        <div class="question" id="qText">Caricamento...</div>
-        <div id="options"></div>
-    </div>
+<div class="card" id="quiz-page">
+    <div class="timer-box" id="t">50:00</div>
+    <div id="prog" style="font-size: 13px; color: #666; margin-bottom: 10px;">Domanda 1 di 80</div>
+    <div class="question" id="q">Caricamento domande...</div>
+    <div id="options"></div>
+</div>
 
-    <div id="result">
-        <h2>Test Completato!</h2>
-        <h1 id="scoreDisplay" style="font-size: 50px; color: #004a99;">0/80</h1>
-        <button class="btn-reset" onclick="location.reload()">Ricomincia</button>
-    </div>
+<div class="card" id="result-page">
+    <h2>Risultato Finale</h2>
+    <h1 id="final-score" style="font-size: 48px; color: #1877f2;">0/80</h1>
+    <button onclick="location.reload()" class="btn" style="text-align:center; background:#1877f2; color:white;">Riprova</button>
 </div>
 
 <script>
-    // Database sintetizzato dal file 27 Serg
     const questions = [
-        {q: "Secondo il Codice Penale Militare, il reato � esclusivamente militare quando:", o: ["� previsto anche dalla legge comune", "Non � previsto dalla legge penale comune", "Riguarda solo i civili"], c: 1},
-        {q: "La Legge Penale Militare � considerata 'Speciale' perch�:", o: ["Tutela diritti privati", "Salvaguarda l'efficienza delle FF.AA.", "Si applica solo in tempo di guerra"], c: 1},
-        {q: "Il Codice Penale Militare di Pace � composto da:", o: ["2 Libri", "3 Libri", "4 Libri"], c: 1},
-        {q: "In caso di emorragia esterna grave, la prima azione da compiere �:", o: ["Disinfettare la ferita", "Compressione diretta sulla ferita", "Somministrare acqua"], c: 1},
-        {q: "La definizione di 'Rifiuto' � contenuta nel:", o: ["D.L. 152/2006", "Codice Penale", "Regolamento di Disciplina"], c: 0},
-        {q: "Chi � il 'Detentore' del rifiuto?", o: ["Chi lo smaltisce", "Il produttore o chi ne � in possesso", "Lo Stato"], c: 1},
-        {q: "La sigla CER nell'ambito dei rifiuti significa:", o: ["Codice Emergenza Rifiuti", "Catalogo Europeo dei Rifiuti", "Centro Estrazione Risorse"], c: 1},
-        {q: "L'elogio deve essere trascritto:", o: ["Solo se richiesto dal militare", "Sui documenti matricolari", "Mai"], c: 1}
+        {q: "Il Sergente � un Pubblico Ufficiale?", o: ["Sempre", "Mai", "Solo in servizio"], c: 2},
+        {q: "La sanzione di corpo pi� grave �:", o: ["Consegna semplice", "Consegna di rigore", "Rimprovero"], c: 1},
+        {q: "Frequenza compressioni BLS (manovre RCP):", o: ["60/min", "100-120/min", "150/min"], c: 1},
+        {q: "Il Codice Penale Militare di Pace si applica:", o: ["Solo ai civili", "Ai militari in servizio", "Solo in guerra"], c: 1},
+        {q: "Chi � il detentore del rifiuto?", o: ["Solo lo Stato", "Il produttore o chi lo possiede", "Chi lo trasporta"], c: 1}
     ];
 
-    // Genera 80 domande per il simulatore
-    let fullDb = [];
-    while(fullDb.length < 80) {
-        fullDb.push(...questions.map(item => ({...item})));
-    }
-    fullDb = fullDb.slice(0, 80);
+    // Crea database di 80 domande (ripetendo le basi per ora)
+    let db = []; while(db.length < 80) db.push(...questions); 
+    db = db.slice(0, 80);
 
-    let current = 0;
-    let score = 0;
-    let seconds = 50 * 60;
+    let cur = 0; let score = 0; let sec = 3000;
 
-    function startTimer() {
-        const tDiv = document.getElementById("timer");
-        const interval = setInterval(() => {
-            seconds--;
-            let m = Math.floor(seconds / 60);
-            let s = seconds % 60;
-            tDiv.innerText = ${m}:${s < 10 ? '0' : ''}${s};
-            if (seconds <= 0) { clearInterval(interval); finish(); }
-        }, 1000);
-    }
-
-    function displayQ() {
-        const q = fullDb[current];
-        document.getElementById("progress").innerText = Domanda ${current + 1} di 80;
-        document.getElementById("qText").innerText = q.q;
-        const optBox = document.getElementById("options");
-        optBox.innerHTML = "";
-        q.o.forEach((opt, i) => {
-            const btn = document.createElement("button");
-            btn.className = "option";
-            btn.innerText = opt;
-            btn.onclick = () => {
-                if(i === q.c) score++;
-                current++;
-                if(current < 80) displayQ(); else finish();
-            };
-            optBox.appendChild(btn);
+    function show() {
+        document.getElementById("prog").innerText = "Domanda " + (cur + 1) + " di 80";
+        document.getElementById("q").innerText = db[cur].q;
+        const box = document.getElementById("options");
+        box.innerHTML = "";
+        db[cur].o.forEach((opt, i) => {
+            const b = document.createElement("button");
+            b.className = "btn";
+            b.innerText = opt;
+            b.onclick = () => { if(i == db[cur].c) score++; cur++; if(cur < 80) show(); else end(); };
+            box.appendChild(b);
         });
     }
 
-    function finish() {
-        document.getElementById("quiz-box").style.display = "none";
-        document.getElementById("result").style.display = "block";
-        document.getElementById("scoreDisplay").innerText = ${score}/80;
+    function end() {
+        document.getElementById("quiz-page").style.display = "none";
+        document.getElementById("result-page").style.display = "block";
+        document.getElementById("final-score").innerText = score + "/80";
     }
 
-    // Avvio immediato
-    startTimer();
-    displayQ();
+    setInterval(() => {
+        if(sec > 0) {
+            sec--;
+            let m = Math.floor(sec/60); let s = sec%60;
+            document.getElementById("t").innerText = m + ":" + (s < 10 ? '0' : '') + s;
+        } else { end(); }
+    }, 1000);
+
+    show();
 </script>
 
 </body>
