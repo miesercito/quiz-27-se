@@ -3,93 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulatore 27° SE</title>
+    <title>Simulatore 27° Sergenti - 80 Domande</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        .timer-box { background: #333; color: #fb1; text-align: center; padding: 10px; border-radius: 8px; font-size: 24px; font-family: monospace; margin-bottom: 20px; }
-        .question { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #1c1e21; min-height: 50px; }
-        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; background: #fff; font-size: 16px; text-align: left; cursor: pointer; transition: 0.2s; }
-        .btn:active { background: #e7f3ff; border-color: #1877f2; }
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #004a99; padding-bottom: 10px; }
+        .timer { background: #333; color: #fb1; padding: 8px 12px; border-radius: 5px; font-family: monospace; font-size: 20px; font-weight: bold; }
+        .info { font-size: 14px; color: #666; font-weight: bold; }
+        .question { font-size: 17px; font-weight: bold; margin: 20px 0; color: #1c1e21; line-height: 1.4; }
+        .btn { display: block; width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 15px; text-align: left; cursor: pointer; transition: 0.2s; }
+        .btn:active { background: #e7f3ff; border-color: #004a99; }
         #result-page { display: none; text-align: center; }
-        .progress-bar { font-size: 13px; color: #666; margin-bottom: 10px; font-weight: bold; }
+        .score-big { font-size: 40px; color: #004a99; margin: 10px 0; }
     </style>
 </head>
 <body>
 
 <div class="card" id="quiz-page">
-    <div class="timer-box" id="t">50:00</div>
-    <div class="progress-bar" id="prog">Domanda 1 di 80</div>
-    <div class="question" id="q">Caricamento...</div>
+    <div class="header">
+        <div class="info" id="prog">Domanda 1 di 80</div>
+        <div class="timer" id="t">50:00</div>
+    </div>
+    <div class="question" id="q">Caricamento domande...</div>
     <div id="options"></div>
 </div>
 
 <div class="card" id="result-page">
-    <h2>Test Completato</h2>
-    <p>Il tuo punteggio è:</p>
-    <h1 id="final-score" style="font-size: 48px; color: #1877f2;">0/80</h1>
-    <button onclick="location.reload()" class="btn" style="text-align:center; background:#1877f2; color:white; font-weight:bold;">Riprova il Test</button>
+    <h2>Test Concluso</h2>
+    <p>Punteggio totale:</p>
+    <div class="score-big" id="final-score">0/80</div>
+    <button onclick="location.reload()" class="btn" style="text-align:center; background:#004a99; color:white; font-weight:bold;">Ricomincia Simulazione</button>
 </div>
 
 <script>
-    // QUI AGGIUNGIAMO LE DOMANDE (Puoi aggiungerne quante ne vuoi seguendo lo schema)
     const questions = [
-        {q: "Il Sergente è un Pubblico Ufficiale?", o: ["Sempre", "Mai", "Solo durante il servizio"], c: 2},
-        {q: "La sanzione di corpo più grave è:", o: ["Consegna semplice", "Consegna di rigore", "Rimprovero"], c: 1},
-        {q: "Le manovre BLS prevedono una frequenza di compressioni di:", o: ["60-80 al minuto", "100-120 al minuto", "Oltre 150 al minuto"], c: 1},
-        {q: "Il Codice Penale Militare di Pace (CPMP) è composto da:", o: ["2 Libri", "3 Libri", "5 Libri"], c: 1},
-        {q: "Chi è considerato 'Detentore' di un rifiuto?", o: ["Solo l'azienda di smaltimento", "Il produttore o chi lo possiede", "Il Sindaco"], c: 1},
-        {q: "L'elogio è una ricompensa che va trascritta:", o: ["Sui documenti matricolari", "Solo su un registro interno", "Non va mai trascritta"], c: 0},
-        {q: "In caso di arresto cardiaco, il defibrillatore (DAE):", o: ["Sostituisce sempre il massaggio", "Analizza il ritmo e guida l'operatore", "Si usa solo sui bambini"], c: 1},
-        {q: "Il reato militare è 'esclusivo' quando:", o: ["È previsto anche dalla legge comune", "È previsto solo dalla legge penale militare", "Riguarda solo i civili"], c: 1},
-        {q: "Il CER (Catalogo Europeo dei Rifiuti) serve a:", o: ["Identificare i rifiuti tramite un codice", "Stabilire il prezzo del rifiuto", "Pulire le caserme"], c: 0},
-        {q: "La consegna di rigore può durare al massimo:", o: ["7 giorni", "15 giorni", "30 giorni"], c: 1},
-        {q: "La G.U.S. (Grande Uniforme Storica) si indossa:", o: ["Per i servizi armati", "In occasioni solenni e cerimonie", "Durante l'addestramento"], c: 1}
+        {q: "Secondo il CPMP, il reato è 'esclusivamente militare' quando:", o: ["È previsto anche dalla legge penale comune", "È previsto solo dalla legge penale militare", "Riguarda solo i reati contro il patrimonio"], c: 1},
+        {q: "La legge penale militare è considerata 'speciale' perché:", o: ["Si applica solo ai civili", "Tutela l'interesse al servizio e alla disciplina delle FF.AA.", "Viene emanata solo in caso di guerra dichiarata"], c: 1},
+        {q: "Il Codice Penale Militare di Pace si divide in:", o: ["Due Libri", "Tre Libri", "Quattro Libri"], c: 1},
+        {q: "Cosa si intende per 'militarizzazione'?", o: ["L'acquisto di nuovi armamenti", "L'assoggettamento alle leggi militari di persone estranee alle FF.AA.", "L'addestramento dei riservisti"], c: 1},
+        {q: "Il superiore che omette di denunciare un reato militare del subordinato commette:", o: ["Insubordinazione", "Omessa denuncia", "Abbandono di posto"], c: 1},
+        {q: "L'insubordinazione consiste in:", o: ["Minaccia o ingiuria a un superiore", "Ritardo nel rientro in caserma", "Perdita dell'armamento"], c: 0},
+        {q: "La sanzione disciplinare di corpo più grave è:", o: ["La consegna semplice", "La consegna di rigore", "Il rimprovero"], c: 1},
+        {q: "Chi può infliggere la consegna di rigore?", o: ["Qualsiasi superiore", "Solo il Comandante di Corpo", "Il Sottufficiale di giornata"], c: 1},
+        {q: "L'elogio è una ricompensa morale che deve essere:", o: ["Solo verbale", "Pubblicata nell'ordine del giorno e trascritta nei documenti", "Mantenuta segreta"], c: 1},
+        {q: "Il Sergente è un Pubblico Ufficiale:", o: ["Sempre, anche in licenza", "Solo durante l'esercizio delle sue funzioni", "Mai"], c: 1},
+        {q: "Il reato militare di 'abbandono di posto' è previsto dal:", o: ["Codice Penale Comune", "Codice Penale Militare di Pace", "Codice della Strada"], c: 1},
+        {q: "In ambito BLS, la valutazione della sicurezza della scena spetta:", o: ["Al primo soccorritore che arriva", "Solo al medico del 118", "Alle autorità di Polizia"], c: 0},
+        {q: "La sequenza corretta del BLS è:", o: ["C-A-B (Circolazione, Vie aeree, Respiro)", "A-B-C (Vie aeree, Respiro, Circolazione)", "B-C-A"], c: 0},
+        {q: "Qual è la frequenza corretta delle compressioni toraciche nell'adulto?", o: ["60-80 al minuto", "100-120 al minuto", "Almeno 150 al minuto"], c: 1},
+        {q: "Qual è la profondità corretta delle compressioni nel BLS adulto?", o: ["Almeno 8 cm", "Circa 5-6 cm", "Non più di 3 cm"], c: 1},
+        {q: "Il DAE (Defibrillatore) deve essere usato:", o: ["Solo da medici", "Appena disponibile, seguendo le istruzioni vocali", "Solo se il paziente è cosciente"], c: 1},
+        {q: "La manovra di Heimlich si esegue in caso di:", o: ["Arresto cardiaco", "Ostruzione totale delle vie aeree da corpo estraneo", "Emorragia esterna"], c: 1},
+        {q: "Il 'tourniquet' si usa in caso di:", o: ["Emorragia venosa lieve", "Emorragia arteriosa massiva agli arti non controllabile", "Frattura chiusa"], c: 1},
+        {q: "La sigla CER identifica:", o: ["Codice Emergenza Rifiuti", "Catalogo Europeo dei Rifiuti", "Centro Estrazione Risorse"], c: 1},
+        {q: "Un rifiuto è definito 'pericoloso' se:", o: ["Pesa più di 100kg", "Presenta caratteristiche di tossicità, infiammabilità, ecc.", "È prodotto da una caserma"], c: 1},
+        {q: "Chi è il 'produttore' del rifiuto?", o: ["Solo chi lo trasporta", "Il soggetto la cui attività produce rifiuti", "Lo Stato"], c: 1},
+        {q: "I rifiuti sanitari pericolosi a rischio infettivo vanno smaltiti in:", o: ["Contenitori neri", "Contenitori rigidi di colore giallo con simbolo rischio biologico", "Sacchi trasparenti"], c: 1},
+        {q: "La sanzione per l'abbandono di rifiuti è prevista dal:", o: ["D.Lgs. 152/2006 (Testo Unico Ambientale)", "Codice della Strada", "Regolamento di Disciplina"], c: 0},
+        {q: "Il registro di carico e scarico dei rifiuti deve essere conservato per:", o: ["1 anno", "3 anni", "10 anni"], c: 1},
+        {q: "Il 'Sottufficiale di Corpo' collabora direttamente con:", o: ["Il Comandante di Compagnia", "Il Comandante di Corpo", "Il Capo Gestione"], c: 1},
+        {q: "Il reclutamento dei Sergenti avviene principalmente tramite:", o: ["Concorso pubblico per civili", "Concorso interno riservato ai Graduati", "Nomina diretta per anzianità"], c: 1},
+        {q: "Il periodo di formazione iniziale per i Sergenti dura di norma:", o: ["2 settimane", "6 mesi", "2 anni"], c: 1},
+        {q: "L'avanzamento al grado di Sergente Maggiore avviene:", o: ["Solo per meriti di guerra", "A scelta o per anzianità secondo le tabelle", "Automaticamente dopo 1 anno"], c: 1},
+        {q: "L'uso della G.U.S. (Grande Uniforme Storica) è previsto per:", o: ["Servizio di guardia", "Cerimonie di particolare solennità", "Attività di ufficio"], c: 1},
+        {q: "Il militare ha l'obbligo di presentarsi in servizio:", o: ["Solo se ha voglia", "Puntualmente all'ora stabilita", "Entro 2 ore dall'inizio previsto"], c: 1},
+        {q: "Il diritto di sciopero per i militari è:", o: ["Sempre concesso", "Esercitato solo fuori servizio", "Vietato dalla legge"], c: 2},
+        {q: "La sanzione della 'consegna' consiste nel:", o: ["Rimanere in caserma nel tempo libero", "Andare in carcere", "Pagare una multa"], c: 0},
+        {q: "Quale autorità è competente per la rimozione di un rifiuto abbandonato?", o: ["Il Ministero della Difesa", "Il Comune (Sindaco)", "La Regione"], c: 1},
+        {q: "Il massaggio cardiaco va interrotto se:", o: ["Il soccorritore è stanco dopo 10 secondi", "Il paziente riprende segni di vita o arriva il 118", "C'è buio"], c: 1},
+        {q: "Le manovre di rianimazione su un bambino prevedono compressioni con:", o: ["Due mani pesanti", "Una mano o due dita a seconda dell'età", "Solo aria"], c: 1},
+        {q: "Il reato militare di 'diserzione' si configura dopo:", o: ["1 ora di assenza", "5 giorni di assenza arbitraria", "24 ore di ritardo"], c: 1},
+        {q: "Il 'Comandante di Corpo' è:", o: ["Un Sottufficiale anziano", "L'ufficiale che esercita l'autorità su un reparto autonomo", "Il General Manager"], c: 1},
+        {q: "I rifiuti 'ingombranti' sono:", o: ["Rifiuti di piccole dimensioni", "Rifiuti che per dimensioni non possono essere messi nei cassonetti", "Solo rifiuti tossici"], c: 1},
+        {q: "La 'consegna di rigore' comporta:", o: ["La perdita dello stipendio", "Il divieto di uscire e l'alloggio in spazi dedicati", "Solo un richiamo verbale"], c: 1},
+        {q: "Nel BLS, 'Gas' significa:", o: ["Guarda, Ascolta, Senti (il respiro)", "Gira, Alza, Sposta", "Gridare Aiuto Subito"], c: 0},
+        {q: "La posizione laterale di sicurezza si usa per:", o: ["Paziente in arresto cardiaco", "Paziente incosciente che respira", "Paziente con trauma spinale"], c: 1},
+        {q: "In caso di emorragia dal naso (epistassi) bisogna:", o: ["Piegare la testa all'indietro", "Piegare la testa in avanti e premere le narici", "Sdraiarsi subito"], c: 1},
+        {q: "Il 'Modello 4' nel trasporto rifiuti è:", o: ["Un documento matricolare", "Il formulario di identificazione dei rifiuti (FIR)", "Un tipo di zaino"], c: 1},
+        {q: "I rifiuti speciali sono prodotti da:", o: ["Solo dalle abitazioni civili", "Attività artigianali, industriali, agricole e sanitarie", "Nessuno"], c: 1},
+        {q: "La 'Mancanza' in ambito disciplinare è:", o: ["Un reato penale", "Una violazione dei doveri della disciplina militare", "Una dote del soldato"], c: 1},
+        {q: "Il ricorso gerarchico contro una sanzione va presentato entro:", o: ["24 ore", "30 giorni", "1 anno"], c: 1},
+        {q: "La responsabilità disciplinare è:", o: ["Collettiva", "Personale", "Solo del Comandante"], c: 1},
+        {q: "Il reato di 'peculato militare' riguarda:", o: ["L'offesa a un civile", "L'appropriazione di denaro o beni dell'amministrazione", "La perdita della divisa"], c: 1},
+        {q: "Il segreto d'ufficio vincola il militare:", o: ["Solo quando è in caserma", "Sempre, per le notizie apprese per ragioni di ufficio", "Solo nei confronti dei superiori"], c: 1},
+        {q: "La sigla 'SISTRI' era legata a:", o: ["Sistema di tiro", "Tracciabilità dei rifiuti", "Sistema di trasmissione"], c: 1},
+        {q: "Un rifiuto urbano è:", o: ["Prodotto da attività industriali", "Prodotto da civili abitazioni o simili", "Solo quello ospedaliero"], c: 1},
+        {q: "Il 'Codice dell'Ordinamento Militare' è abbreviato in:", o: ["COM", "CPMP", "TUA"], c: 0},
+        {q: "Il militare deve mantenere il decoro della divisa:", o: ["Solo durante le cerimonie", "Sempre, quando la indossa", "Solo se ci sono superiori"], c: 1},
+        {q: "In caso di frattura esposta bisogna:", o: ["Rimettere l'osso dentro", "Coprire con garza sterile senza toccare l'osso", "Lavare con acqua corrente forte"], c: 1},
+        {q: "La RCP deve essere iniziata:", o: ["Dopo aver aspettato 10 minuti", "Immediatamente dopo aver constatato l'assenza di respiro", "Solo se arriva l'ambulanza"], c: 1},
+        {q: "Il reato militare commesso per 'stato di necessità':", o: ["È sempre punito", "Può escludere la punibilità secondo il codice", "Non esiste"], c: 1},
+        {q: "Il Sergente Maggiore Capo è un grado dei:", o: ["Ufficiali", "Sergenti", "Graduati"], c: 1},
+        {q: "L'impatto ambientale delle attività militari è regolato da:", o: ["Nessuna legge", "Normativa nazionale (TUA) e direttive interne", "Solo leggi internazionali"], c: 1},
+        {q: "Cosa si intende per 'raccolta differenziata'?", o: ["Mettere tutto in un unico sacco", "Separazione dei rifiuti per tipologia per favorire il recupero", "Bruciare i rifiuti"], c: 1},
+        {q: "Il saluto militare è un atto di:", o: ["Sottomissione", "Rispetto e riconoscimento tra militari", "Obbligo solo verso i civili"], c: 1},
+        {q: "Il rapporto disciplinare deve essere:", o: ["Chiaro, conciso e privo di valutazioni personali", "Molto lungo e soggettivo", "Verbale e mai scritto"], c: 0},
+        {q: "Il soccorritore deve proteggersi dai fluidi biologici usando:", o: ["Guanti monouso", "Niente", "Solo acqua"], c: 0},
+        {q: "La 'catena della sopravvivenza' comprende:", o: ["4 anelli fondamentali", "10 anelli", "Nessun anello"], c: 0},
+        {q: "Il reato di 'rivolta' militare richiede la partecipazione di:", o: ["Almeno 4 militari", "Almeno 10 militari", "Almeno 20 militari"], c: 0},
+        {q: "L'uso delle armi da parte del militare è consentito:", o: ["Sempre per divertimento", "Per assolvere un dovere o per legittima difesa", "Mai, in nessuna circostanza"], c: 1},
+        {q: "Il recupero dei rifiuti è prioritario rispetto a:", o: ["La produzione", "Lo smaltimento in discarica", "Il trasporto"], c: 1},
+        {q: "Il rifiuto organico (umido) va smaltito nel:", o: ["Sacco blu", "Contenitore per compostaggio/umido", "Sacco nero"], c: 1},
+        {q: "La notifica di un atto disciplinare deve avvenire:", o: ["Per telefono", "Per iscritto con firma per ricevuta", "Tramite un collega"], c: 1},
+        {q: "L'anzianità di grado si determina dalla:", o: ["Data del decreto di nomina/promozione", "Data di nascita", "Data di arruolamento"], c: 0},
+        {q: "Il Sergente è la figura cardine tra:", o: ["Ufficiali e Sottufficiali", "Graduati e Sottufficiali/Ufficiali", "Civili e Soldati"], c: 1},
+        {q: "Il dovere di obbedienza è:", o: ["Assoluto e senza limiti", "Limitato dalle leggi e dagli ordini legittimi", "Facoltativo"], c: 1},
+        {q: "In caso di ustione termica bisogna:", o: ["Mettere olio o burro", "Raffreddare con acqua corrente fresca", "Rompere le bolle"], c: 1},
+        {q: "Lo 'shock' è una condizione di:", o: ["Insufficienza circolatoria grave", "Semplice spavento", "Fame eccessiva"], c: 0},
+        {q: "Il registro degli elogi è tenuto da:", o: ["Ogni singolo militare", "L'ufficio maggiorità e personale", "Il cappellano"], c: 1},
+        {q: "La 'difesa ambientale' è un compito:", o: ["Solo dei forestali", "Di tutto il personale militare nell'ambito delle proprie funzioni", "Opzionale"], c: 1},
+        {q: "I rifiuti pericolosi sono stoccati in:", o: ["Aree aperte al pubblico", "Depositi temporanei autorizzati e segnalati", "In ufficio"], c: 1},
+        {q: "Il militare può svolgere attività lavorativa esterna?", o: ["Sì, sempre", "No, salvo autorizzazioni specifiche in casi limitati", "Solo se notturna"], c: 1},
+        {q: "Quale tra questi è un rifiuto speciale?", o: ["Avanzi di cibo di casa", "Oli esausti di motori militari", "Giornali"], c: 1},
+        {q: "Il massaggio cardiaco si esegue al centro del:", o: ["Torace (sterno)", "Addome", "Collo"], c: 0},
+        {q: "Dopo 80 domande, il test calcola:", o: ["Solo le risposte sbagliate", "Il punteggio totale su 80", "Niente"], c: 1}
     ];
 
-    // Questa funzione "mescola" e riempie fino a 80 domande per simulare l'esame
-    let db = [];
-    while(db.length < 80) {
-        let shuffle = [...questions].sort(() => 0.5 - Math.random());
-        db.push(...shuffle);
+    let current = 0;
+    let score = 0;
+    let seconds = 50 * 60;
+
+    function startTimer() {
+        const tDiv = document.getElementById("t");
+        const interval = setInterval(() => {
+            seconds--;
+            let m = Math.floor(seconds / 60);
+            let s = seconds % 60;
+            tDiv.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+            if (seconds <= 0) { clearInterval(interval); finish(); }
+        }, 1000);
     }
-    db = db.slice(0, 80);
 
-    let cur = 0; let score = 0; let sec = 3000;
-
-    function show() {
-        document.getElementById("prog").innerText = "Domanda " + (cur + 1) + " di 80";
-        document.getElementById("q").innerText = db[cur].q;
-        const box = document.getElementById("options");
-        box.innerHTML = "";
-        db[cur].o.forEach((opt, i) => {
-            const b = document.createElement("button");
-            b.className = "btn";
-            b.innerText = opt;
-            b.onclick = () => { 
-                if(i == db[cur].c) score++; 
-                cur++; 
-                if(cur < 80) show(); else end(); 
+    function displayQ() {
+        if (current >= 80) { finish(); return; }
+        const q = questions[current];
+        document.getElementById("prog").innerText = `Domanda ${current + 1} di 80`;
+        document.getElementById("q").innerText = q.q;
+        const optBox = document.getElementById("options");
+        optBox.innerHTML = "";
+        q.o.forEach((opt, i) => {
+            const btn = document.createElement("button");
+            btn.className = "btn";
+            btn.innerText = opt;
+            btn.onclick = () => {
+                if(i === q.c) score++;
+                current++;
+                displayQ();
             };
-            box.appendChild(b);
+            optBox.appendChild(btn);
         });
     }
 
-    function end() {
+    function finish() {
         document.getElementById("quiz-page").style.display = "none";
         document.getElementById("result-page").style.display = "block";
-        document.getElementById("final-score").innerText = score + "/80";
+        document.getElementById("final-score").innerText = `${score}/80`;
     }
 
-    setInterval(() => {
-        if(sec > 0) {
-            sec--;
-            let m = Math.floor(sec/60); let s = sec%60;
-            document.getElementById("t").innerText = m + ":" + (s < 10 ? '0' : '') + s;
-        } else { end(); }
-    }, 1000);
-
-    show();
+    startTimer();
+    displayQ();
 </script>
 
 </body>
